@@ -17,12 +17,16 @@ let package = Package(
             url: "https://github.com/shareup/synchronized.git",
             from: "4.0.0"
         ),
+        .package(
+            url: "https://github.com/hberenger/cwasm3.git",
+            branch: "feature/wasi"
+        ),
     ],
     targets: [
         .target(
             name: "WasmInterpreter",
             dependencies: [
-                "CWasm3",
+                .product(name: "CWasm3", package: "CWasm3"),
                 .product(name: "Synchronized", package: "synchronized"),
             ],
             cSettings: [
@@ -30,7 +34,7 @@ let package = Package(
             ]
         ),
         .binaryTarget(
-            name: "CWasm3",
+            name: "CWasm3-binary",
             url: "https://github.com/shareup/cwasm3/releases/download/v0.5.2/CWasm3-0.5.0.xcframework.zip",
             checksum: "a2b0785be1221767d926cee76b087f168384ec9735b4f46daf26e12fae2109a3"
         ),

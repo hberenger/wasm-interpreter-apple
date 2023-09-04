@@ -16,19 +16,19 @@ public final class WasmInterpreter {
 
     private let lock = Lock()
 
-    public convenience init(module: URL) throws {
-        try self.init(stackSize: 512 * 1024, module: module)
+    public convenience init(module: URL, linkWASI: Bool = false) throws {
+        try self.init(stackSize: 512 * 1024, module: module, linkWASI: linkWASI)
     }
 
-    public convenience init(stackSize: UInt32, module: URL) throws {
-        try self.init(stackSize: stackSize, module: [UInt8](try Data(contentsOf: module)))
+    public convenience init(stackSize: UInt32, module: URL, linkWASI: Bool = false) throws {
+        try self.init(stackSize: stackSize, module: [UInt8](try Data(contentsOf: module)), linkWASI: linkWASI)
     }
 
-    public convenience init(module bytes: [UInt8]) throws {
-        try self.init(stackSize: 512 * 1024, module: bytes)
+    public convenience init(module bytes: [UInt8], linkWASI: Bool = false) throws {
+        try self.init(stackSize: 512 * 1024, module: bytes, linkWASI: linkWASI)
     }
 
-    public init(stackSize: UInt32, module bytes: [UInt8]) throws {
+    public init(stackSize: UInt32, module bytes: [UInt8], linkWASI: Bool = false) throws {
         id = nextInstanceIdentifier
         idPointer = makeRawPointer(for: id)
 
@@ -44,6 +44,10 @@ public final class WasmInterpreter {
         try WasmInterpreter.check(m3_ParseModule(environment, &mod, bytes, UInt32(bytes.count)))
         guard let module = mod else { throw WasmInterpreterError.couldNotParseModule }
         try WasmInterpreter.check(m3_LoadModule(runtime, module))
+
+        if linkWASI {
+            try WasmInterpreter.check(m3_LinkWASI(module))
+        }
 
         self.environment = environment
         self.runtime = runtime
